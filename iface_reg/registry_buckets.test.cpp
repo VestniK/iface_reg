@@ -39,5 +39,51 @@ SCENARIO("registyr_buckets colisions") {
       REQUIRE(buckets.find_at(8, node3.key) == nullptr);
       REQUIRE(buckets.find_at(3, node8.key) == nullptr);
     }
+
+    WHEN("Another node added with same hash") {
+      auto collision = make_test_node("asd", 45);
+      buckets.link_at(8, collision);
+
+      THEN("previous nodes are searchable") {
+        REQUIRE(buckets.find_at(3, node3.key) == &node3);
+        REQUIRE(buckets.find_at(8, node8.key) == &node8);
+      }
+
+      THEN("new node is found by proper hash") {
+        REQUIRE(buckets.find_at(8, collision.key) == &collision);
+      }
+
+      THEN("new node is is not found by wrong hash") {
+        REQUIRE(buckets.find_at(3, collision.key) == nullptr);
+      }
+
+      THEN("removing old node at hash with collision succeeds") {
+        REQUIRE(buckets.unlink_at(8, node8.key) == true);
+      }
+
+      THEN("removing new node at hash with collision succeeds") {
+        REQUIRE(buckets.unlink_at(8, collision.key) == true);
+      }
+
+      THEN("old node with hash collision is not found after removal") {
+        buckets.unlink_at(8, node8.key);
+        REQUIRE(buckets.find_at(8, node3.key) == nullptr);
+      }
+
+      THEN("new node with hash collision is found after old node removal") {
+        buckets.unlink_at(8, node8.key);
+        REQUIRE(buckets.find_at(8, collision.key) == &collision);
+      }
+
+      THEN("new node with hash collision is not found after removal") {
+        buckets.unlink_at(8, collision.key);
+        REQUIRE(buckets.find_at(8, collision.key) == nullptr);
+      }
+
+      THEN("old node with hash collision is found after new node removal") {
+        buckets.unlink_at(8, collision.key);
+        REQUIRE(buckets.find_at(8, node8.key) == &node8);
+      }
+    }
   }
 }
