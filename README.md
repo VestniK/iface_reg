@@ -1,3 +1,3 @@
 # iface_reg
 
-Experiments with plugins system with autoregistration without heap allocation out of main.
+Experiments with plugins system with auto-registration and without heap allocation out of main.
