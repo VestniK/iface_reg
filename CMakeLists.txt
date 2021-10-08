@@ -8,7 +8,9 @@ include(cmake/conan.cmake)
 include(cmake/ProjectStruct.cmake)
 
 conan_cmake_configure(
-  REQUIRES catch2/3.0.0@catchorg/stable
+  REQUIRES
+    catch2/3.0.0@catchorg/stable
+    fmt/7.1.3
   GENERATORS cmake_find_package
 )
 conan_cmake_autodetect(settings)
