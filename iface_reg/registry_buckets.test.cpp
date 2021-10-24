@@ -7,6 +7,8 @@
 
 #include <fmt/format.h>
 
+using namespace std::literals;
+
 namespace Catch {
 template <> struct StringMaker<irg::detail::registry_node> {
   static std::string convert(const irg::detail::registry_node &value) {
@@ -15,6 +17,7 @@ template <> struct StringMaker<irg::detail::registry_node> {
                        reinterpret_cast<uintptr_t>(&value));
   }
 };
+
 } // namespace Catch
 
 namespace {
@@ -130,8 +133,8 @@ SCENARIO("registyr_buckets colisions") {
 
 SCENARIO("buckets link/unlink/find fuzz tests", "[fuzz]") {
   constexpr size_t buckets_count = 32;
-  constexpr size_t buckets_to_fill[] = {0, buckets_count - 1, buckets_count / 3,
-                                        2 * buckets_count / 3};
+  constexpr static size_t buckets_to_fill[] = {
+      0, buckets_count - 1, buckets_count / 3, 2 * buckets_count / 3};
   constexpr static std::string_view all_names[] = {
       "qwe",  "rty", "asd", "fgh",  "zxc", "vbn",
       "uiop", "123", "345", "wsad", "abc", "def"};
@@ -205,6 +208,16 @@ SCENARIO("buckets link/unlink/find fuzz tests", "[fuzz]") {
         }
       }
 
+      THEN("elements are not searchable at wrong hash") {
+        for (size_t bucket : buckets_to_fill) {
+          for (const auto &[bckt, node] : inserted) {
+            if (bckt == bucket)
+              continue;
+            REQUIRE(buckets.find_at(bucket, node->key) != node);
+          }
+        }
+      }
+
       AND_WHEN("Conflicting nodes for all duplicates are unlinked and "
                "duplicates are linked") {
         for (const auto &[bckt, node] : duplicates)
@@ -216,6 +229,16 @@ SCENARIO("buckets link/unlink/find fuzz tests", "[fuzz]") {
         THEN("all newly inserted elements are searchable") {
           for (const auto &[bckt, node] : duplicates)
             REQUIRE_THAT(*node, found_at_bucket(buckets, bckt));
+        }
+
+        THEN("elements are stil not searchable at wrong hash") {
+          for (size_t bucket : buckets_to_fill) {
+            for (const auto &[bckt, node] : duplicates) {
+              if (bckt == bucket)
+                continue;
+              REQUIRE(buckets.find_at(bucket, node->key) != node);
+            }
+          }
         }
       }
     }
