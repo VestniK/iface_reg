@@ -7,4 +7,5 @@ lib(
   TEST_LIBS
     Catch2::Catch2
     fmt::fmt
+  TEST_ARGS --rng-seed time
 )

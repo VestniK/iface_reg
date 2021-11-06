@@ -1,7 +1,7 @@
 macro(lib)
     set(opts "")
     set(oneval_args NAME STD)
-    set(multyval_args LIBS TEST_LIBS)
+    set(multyval_args LIBS TEST_LIBS TEST_ARGS)
     cmake_parse_arguments(LIB_PRJ
         "${opts}"
         "${oneval_args}"
@@ -45,6 +45,6 @@ macro(lib)
         add_executable(${LIB_PRJ_NAME}.test)
         target_sources(${LIB_PRJ_NAME}.test PRIVATE ${PRJ_TEST_SRC})
         target_link_libraries(${LIB_PRJ_NAME}.test PRIVATE ${LIB_PRJ_NAME} ${LIB_PRJ_TEST_LIBS})
-        add_test(NAME ${LIB_PRJ_NAME}-test COMMAND ${LIB_PRJ_NAME}.test)
+        add_test(NAME ${LIB_PRJ_NAME}-test COMMAND ${LIB_PRJ_NAME}.test ${LIB_PRJ_TEST_ARGS})
     endif()
 endmacro()
