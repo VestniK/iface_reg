@@ -23,9 +23,6 @@ jobs:
       
     - name: Setup Ninja
       uses: ashutoshvarma/setup-ninja@v1.1
-      
-    - name: Install deps
-      run: conan install -g cmake -if ${{github.workspace}}/build --build=missing -s build_type=Release -s compiler.libcxx=libstdc++11 .
 
     - name: Configure CMake
       run: cmake -G Ninja -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
