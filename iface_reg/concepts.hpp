@@ -1,6 +1,7 @@
 #pragma once
 
 #include <concepts>
+#include <string_view>
 #include <type_traits>
 
 namespace iface_reg {
@@ -39,5 +40,15 @@ concept plugin_implementation =
     plugin_interface<Interface> && std::derived_from<T, Interface> &&
     detail::is_factory_constructible_v<T,
                                        typename Interface::factory_signature>;
+
+template <typename R, typename I>
+concept registry_for = plugin_interface<I> && requires() {
+  typename R::node;
+} && requires(R reg, std::string_view name,
+              typename I::factory_signature *factory, typename R::node node) {
+  { R::template make_node<I>(name, factory) } -> std::same_as<typename R::node>;
+  { reg.template unlink<I>(name) };
+  { reg.link(node) };
+};
 
 } // namespace iface_reg

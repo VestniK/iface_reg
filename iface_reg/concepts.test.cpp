@@ -1,5 +1,6 @@
 #include <memory>
 
+#include <iface_reg/basic_registry.hpp>
 #include <iface_reg/concepts.hpp>
 #include <iface_reg/ns.hpp>
 
@@ -59,3 +60,28 @@ struct impl : iface {
 };
 static_assert(irg::plugin_implementation<impl, iface>,
               "implementation must be constructible with factory arguments");
+
+struct iface_2 {
+  using factory_signature = std::unique_ptr<iface_2>(int);
+  virtual void bar() = 0;
+};
+struct iface_3 {
+  using factory_signature = std::unique_ptr<iface_3>(int);
+  virtual void baz() = 0;
+};
+
+static_assert(
+    irg::registry_for<irg::registry<iface>, iface>,
+    "registry satisfies registry_for concept for it's the only parameter");
+
+static_assert(irg::registry_for<irg::registry<iface, iface_2>, iface>,
+              "registry satisfies registry_for concept for it's first template "
+              "parameter");
+
+static_assert(irg::registry_for<irg::registry<iface, iface_2>, iface_2>,
+              "registry satisfies registry_for concept for it's second "
+              "template parameter");
+
+static_assert(
+    !irg::registry_for<irg::registry<iface, iface_3>, iface_2>,
+    "registry satisfies registry_for concept for it's arguments only");
