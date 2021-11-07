@@ -9,7 +9,7 @@ include(cmake/ProjectStruct.cmake)
 
 conan_cmake_configure(
   REQUIRES
-    catch2/3.0.0@catchorg/stable
+    catch2/2.13.7
     fmt/7.1.3
   GENERATORS cmake_find_package
 )
@@ -17,7 +17,7 @@ conan_cmake_autodetect(settings)
 conan_cmake_install(
   PATH_OR_REFERENCE .
   BUILD missing
-  REMOTE conan-center
+  REMOTE conancenter
   SETTINGS ${settings}
 )
 

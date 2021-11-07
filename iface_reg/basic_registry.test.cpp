@@ -3,7 +3,7 @@
 #include <iface_reg/basic_registry.hpp>
 #include <iface_reg/ns.hpp>
 
-#include <catch2/catch_test_macros.hpp>
+#include <catch2/catch.hpp>
 
 struct int_iface {
   using factory_signature = std::unique_ptr<int_iface>();

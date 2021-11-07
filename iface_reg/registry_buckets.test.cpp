@@ -1,9 +1,7 @@
 #include <iface_reg/ns.hpp>
 #include <iface_reg/registry_buckets.hpp>
 
-#include <catch2/catch_test_macros.hpp>
-#include <catch2/generators/catch_generators_all.hpp>
-#include <catch2/matchers/catch_matchers_all.hpp>
+#include <catch2/catch.hpp>
 
 #include <fmt/format.h>
 
@@ -26,13 +24,13 @@ template <typename Arr> auto random_elem(const Arr &arr) {
 }
 
 template <size_t BucketsCount>
-class found_at_bucket : public Catch::Matchers::MatcherGenericBase {
+class found_at_bucket : public Catch::MatcherBase<irg::detail::registry_node> {
 public:
   found_at_bucket(const irg::detail::registry_buckets<BucketsCount> &buckets,
                   size_t bucket) noexcept
       : buckets_{&buckets}, bucket_num_{bucket} {}
 
-  bool match(const irg::detail::registry_node &node) const {
+  bool match(const irg::detail::registry_node &node) const override {
     return buckets_->find_at(bucket_num_, node.key) == &node;
   }
 
