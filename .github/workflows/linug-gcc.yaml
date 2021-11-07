@@ -23,12 +23,14 @@ jobs:
       with:
         version: 11
         platform: x64
-    
+
     - name: Get Conan
       uses: turtlebrowser/get-conan@v1.0
-      
+
     - name: Setup Ninja
       uses: ashutoshvarma/setup-ninja@v1.1
+      with:
+        dest: ${{github.workspace}}/.tools/ninja
 
     - name: Configure CMake
       run: cmake -G Ninja -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
