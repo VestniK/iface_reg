@@ -23,4 +23,6 @@ conan_cmake_install(
 
 list(APPEND CMAKE_CTEST_ARGUMENTS "--output-on-failure")
 enable_testing()
+
+add_subdirectory(catch2_main)
 add_subdirectory(iface_reg)
