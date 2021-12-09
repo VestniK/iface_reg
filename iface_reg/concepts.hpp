@@ -47,8 +47,15 @@ concept registry_for = plugin_interface<I> && requires() {
 } && requires(R reg, std::string_view name,
               typename I::factory_signature *factory, typename R::node node) {
   { R::template make_node<I>(name, factory) } -> std::same_as<typename R::node>;
-  { reg.template unlink<I>(name) };
-  { reg.link(node) };
+  { reg.template unlink<I>(name) }
+  noexcept;
+  {reg.link(node)};
+};
+
+template <typename P, typename I>
+concept named_plugin_implementation = plugin_implementation<P, I> &&
+    requires() {
+  { P::name } -> std::convertible_to<std::string_view>;
 };
 
 } // namespace iface_reg

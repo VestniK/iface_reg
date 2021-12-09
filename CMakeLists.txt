@@ -5,7 +5,7 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_BINARY_DIR})
 list(APPEND CMAKE_PREFIX_PATH ${CMAKE_BINARY_DIR})
 
 include(cmake/conan.cmake)
-include(cmake/ProjectStruct.cmake)
+include(cmake/canonical_project.cmake)
 
 conan_cmake_configure(
   REQUIRES
