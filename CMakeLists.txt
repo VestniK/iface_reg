@@ -26,3 +26,4 @@ enable_testing()
 
 add_subdirectory(catch2_main)
 add_subdirectory(iface_reg)
+add_subdirectory(tests)

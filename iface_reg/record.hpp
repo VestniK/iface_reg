@@ -7,8 +7,10 @@ namespace iface_reg {
 
 template <plugin_interface Iface, plugin_implementation<Iface> Impl,
           auto &Registry>
-requires registry_for<decltype(Registry), Iface>
+requires registry_for<std::remove_cvref_t<decltype(Registry)>, Iface>
 struct record {
+  using registry_t = std::remove_cvref_t<decltype(Registry)>;
+
   record(std::string_view name)
       : node{Registry.template make_node<Iface>(
             name, factory_function<Iface, Impl>)} {
@@ -17,19 +19,7 @@ struct record {
 
   ~record() noexcept { Registry.template unlink<Iface>(node.key.plugin_name); }
 
-  typename decltype(Registry)::node node;
+  registry_t::node node;
 };
 
-template <plugin_interface Iface,
-          named_plugin_implementation<Iface> Impl, auto &Registry>
-requires registry_for<decltype(Registry), Iface>
-struct default_record : record<Iface, Impl, Registry> {
-  default_record() : record<Iface, Impl, Registry>{Impl::name} {}
-};
-
-template <plugin_interface Iface,
-          named_plugin_implementation<Iface> Impl, auto &Registry>
-requires registry_for<decltype(Registry), Iface>
-inline default_record<Iface, Impl, Registry> default_plugin_record{};
-
-}
+} // namespace iface_reg

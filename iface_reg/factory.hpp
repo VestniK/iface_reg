@@ -12,7 +12,8 @@ template <typename T, typename R, typename... A>
 struct make_factory_func<T, R(A...)> {
   using factory_signature = R(A...);
 
-  factory_signature *value = &factory<R>::template create<T, A...>;
+  constexpr static factory_signature *value =
+      &factory<R>::template create<T, A...>;
 };
 
 template <plugin_interface I, plugin_implementation<I> P>
