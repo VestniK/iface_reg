@@ -12,7 +12,7 @@ struct stat_func_iface {
   using factory_signature = std::unique_ptr<stat_func_iface>();
 
   virtual ~stat_func_iface() noexcept = default;
-  virtual double calc(std::span<double> sample) = 0;
+  virtual double calc(std::span<const double> sample) = 0;
 };
 
 extern irg::registry<stat_func_iface> registry;

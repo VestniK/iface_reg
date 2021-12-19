@@ -1,11 +1,2 @@
-find_package(Catch2 REQUIRED)
-
-cpp_unit(
-  NAME iface_reg_integration
-  STD cxx_std_20
-  TEST_LIBS
-    Catch2::Catch2
-    catch2_main
-    iface_reg
-  TEST_ARGS --rng-seed time
-)
+add_subdirectory(integration_test_app)
+add_subdirectory(dynlib)
