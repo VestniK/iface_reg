@@ -1,2 +1,3 @@
-add_subdirectory(integration_test_app)
+add_subdirectory(common_env)
 add_subdirectory(dynlib)
+add_subdirectory(integration_test_app)

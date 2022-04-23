@@ -3,7 +3,7 @@
 
 #include <catch2/catch.hpp>
 
-#include "common_env.test.hpp"
+#include <tests/common_env/common_env.hpp>
 
 using namespace Catch::literals;
 

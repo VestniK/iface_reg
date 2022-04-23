@@ -19,7 +19,7 @@ struct record {
 
   ~record() noexcept { Registry.template unlink<Iface>(node.key.plugin_name); }
 
-  registry_t::node node;
+  typename registry_t::node node;
 };
 
 } // namespace iface_reg

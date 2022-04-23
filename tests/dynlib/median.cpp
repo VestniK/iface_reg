@@ -2,7 +2,7 @@
 #include <ranges>
 #include <vector>
 
-#include <tests/integration_test_app/common_env.test.hpp>
+#include <tests/common_env/common_env.hpp>
 
 class median : public plugin<median, stat_func_iface> {
 public:

@@ -22,7 +22,7 @@ struct default_record {
     Registry.template unlink<Iface>(node.key.plugin_name);
   }
 
-  registry_t::node node;
+  typename registry_t::node node;
 };
 
 template <plugin_interface Iface, typename Impl, auto &Registry>

@@ -7,6 +7,7 @@ cpp_unit(
     Catch2::Catch2
     catch2_main
     iface_reg
+    integration_test_env
     integration_test_dynlib
   TEST_ARGS --rng-seed time
 )
