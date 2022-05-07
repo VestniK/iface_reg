@@ -126,14 +126,14 @@ SCENARIO("registyr_buckets colisions") {
   }
 }
 
-SCENARIO("buckets link/unlink/find fuzz tests", "[fuzz]") {
-  constexpr size_t buckets_count = 32;
-  constexpr size_t buckets_to_fill[] = {0, buckets_count - 1, buckets_count / 3,
-                                        2 * buckets_count / 3};
-  constexpr static std::string_view all_names[] = {
-      "qwe",  "rty", "asd", "fgh",  "zxc", "vbn",
-      "uiop", "123", "345", "wsad", "abc", "def"};
+constexpr size_t buckets_count = 32;
+constexpr size_t buckets_to_fill[] = { 0, buckets_count - 1, buckets_count / 3,
+                                      2 * buckets_count / 3 };
+constexpr static std::string_view all_names[] = {
+    "qwe",  "rty", "asd", "fgh",  "zxc", "vbn",
+    "uiop", "123", "345", "wsad", "abc", "def" };
 
+SCENARIO("buckets link/unlink/find fuzz tests", "[fuzz]") {
   const auto sample_sz = GENERATE(take(3, random(4u, 18u)));
 
   const auto bckt_nums =

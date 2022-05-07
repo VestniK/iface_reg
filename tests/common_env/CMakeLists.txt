@@ -10,3 +10,4 @@ cpp_unit(
   LIBS iface_reg
   STD cxx_std_20
 )
+set_property(TARGET integration_test_env PROPERTY CXX_VISIBILITY_PRESET hidden)

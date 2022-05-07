@@ -15,6 +15,17 @@ struct stat_func_iface {
   virtual double calc(std::span<const double> sample) = 0;
 };
 
+#if defined(_WIN32)
+#  if defined(iface_reg_integration_EXPORTS) || defined(iface_reg_integration_test_EXPORTS)
+#    define COMON_ENV_PUBLIC __declspec(dllexport)
+#  else
+#    define COMON_ENV_PUBLIC __declspec(dllimport)
+#  endif
+#elif __has_attribute(gnu::visibility)
+#  define COMON_ENV_PUBLIC [[gnu::visibility(default)]]
+#endif
+
+COMON_ENV_PUBLIC
 extern irg::registry<stat_func_iface> registry;
 
 template <typename Impl, typename Iface>

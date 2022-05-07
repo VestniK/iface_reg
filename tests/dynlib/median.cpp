@@ -1,10 +1,21 @@
 #include <algorithm>
 #include <ranges>
 #include <vector>
+#include <iterator>
 
-#include <tests/common_env/common_env.hpp>
+#include <tests/integration_test_app/common_env.hpp>
 
-class median : public plugin<median, stat_func_iface> {
+#if defined(_WIN32)
+#  if defined(integration_test_dynlib_EXPORTS)
+#    define TEST_DYNLIB_PUBLIC __declspec(dllexport)
+#  else
+#    define TEST_DYNLIB_PUBLIC __declspec(dllimport)
+#  endif
+#elif __has_attribute(gnu::visibility)
+#  define TEST_DYNLIB_PUBLIC [[gnu::visibility(default)]]
+#endif
+
+class TEST_DYNLIB_PUBLIC median : public plugin<median, stat_func_iface> {
 public:
   static constexpr std::string_view name = "median";
 

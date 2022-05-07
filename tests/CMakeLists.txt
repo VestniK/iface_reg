@@ -1,3 +1,4 @@
-add_subdirectory(common_env)
-add_subdirectory(dynlib)
+if (NOT WIN32)
+  add_subdirectory(dynlib)
+endif()
 add_subdirectory(integration_test_app)

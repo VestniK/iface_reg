@@ -3,7 +3,7 @@
 
 #include <catch2/catch.hpp>
 
-#include <tests/common_env/common_env.hpp>
+#include <tests/integration_test_app/common_env.hpp>
 
 using namespace Catch::literals;
 
@@ -20,7 +20,7 @@ SCENARIO("integration tests") {
   GIVEN("some random sample") {
     const std::vector<double> sample = [&] {
       std::mt19937 gen;
-      std::normal_distribution dist;
+      std::normal_distribution<double> dist;
       constexpr size_t sample_sz = 5000;
       std::vector<double> res;
       res.reserve(sample_sz);
@@ -39,6 +39,7 @@ SCENARIO("integration tests") {
       }
     }
 
+#if !defined(WIN32)
     WHEN("plugin from dyn lib is searched") {
       auto median_factory = registry.find_factory<stat_func_iface>("median");
 
@@ -48,5 +49,6 @@ SCENARIO("integration tests") {
         REQUIRE(median->calc(sample) == 0.0217291609_a);
       }
     }
+#endif
   }
 }
