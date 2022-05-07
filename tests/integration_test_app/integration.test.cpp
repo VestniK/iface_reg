@@ -33,7 +33,7 @@ SCENARIO("integration tests") {
       auto average_factory = registry.find_factory<stat_func_iface>("average");
 
       THEN("its factory is non null") { REQUIRE(average_factory != nullptr); }
-      THEN("plugin calculate sample average") {
+      THEN("plugin found calculates sample average") {
         auto average = average_factory();
         REQUIRE(average->calc(sample) == 0.0185213375_a);
       }
@@ -44,7 +44,7 @@ SCENARIO("integration tests") {
       auto median_factory = registry.find_factory<stat_func_iface>("median");
 
       THEN("its factory is non null") { REQUIRE(median_factory != nullptr); }
-      THEN("plugin calculate sample median") {
+      THEN("plugin found calculates sample median") {
         auto median = median_factory();
         REQUIRE(median->calc(sample) == 0.0217291609_a);
       }
