@@ -3,7 +3,7 @@
 #include <ranges>
 #include <vector>
 
-#include <tests/integration_test_app/common_env.hpp>
+#include <tests/common_env.hpp>
 
 #if defined(_WIN32)
 #if defined(integration_test_dynlib_EXPORTS)

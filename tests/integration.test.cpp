@@ -3,7 +3,7 @@
 
 #include <catch2/catch.hpp>
 
-#include <tests/integration_test_app/common_env.hpp>
+#include <tests/common_env.hpp>
 
 using namespace Catch::literals;
 
@@ -32,10 +32,11 @@ SCENARIO("integration tests") {
     WHEN("plugin from the app itself is searched") {
       auto average_factory = registry.find_factory<stat_func_iface>("average");
 
-      THEN("its factory is non null") { REQUIRE(average_factory != nullptr); }
+      THEN("its factory is non null") { CHECK(average_factory != nullptr); }
       THEN("plugin found calculates sample average") {
         auto average = average_factory();
-        REQUIRE(average->calc(sample) == 0.0185213375_a);
+        REQUIRE(average_factory != nullptr);
+        CHECK(average->calc(sample) == 0.0185213375_a);
       }
     }
 
@@ -43,10 +44,11 @@ SCENARIO("integration tests") {
     WHEN("plugin from dyn lib is searched") {
       auto median_factory = registry.find_factory<stat_func_iface>("median");
 
-      THEN("its factory is non null") { REQUIRE(median_factory != nullptr); }
+      THEN("its factory is non null") { CHECK(median_factory != nullptr); }
       THEN("plugin found calculates sample median") {
         auto median = median_factory();
-        REQUIRE(median->calc(sample) == 0.0217291609_a);
+        REQUIRE(median_factory != nullptr);
+        CHECK(median->calc(sample) == 0.0217291609_a);
       }
     }
 #endif
