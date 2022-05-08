@@ -21,3 +21,4 @@ set_property(
   TARGET iface_reg_integration.test
   PROPERTY ENABLE_EXPORTS On
 )
+target_compile_definitions(iface_reg_integration.test PRIVATE UNICODE)

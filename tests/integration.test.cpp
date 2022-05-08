@@ -2,16 +2,40 @@
 #include <random>
 #include <filesystem>
 
-#if !defined(WIN32)
-#include <dlfcn.h>
-#endif
-
 #include <catch2/catch.hpp>
 
 #include <tests/common_env.hpp>
 #include <tests/main.test.hpp>
 
+#if !defined(WIN32)
+#include <dlfcn.h>
+#else
+#include <windows.h>
+#endif
+
 using namespace Catch::literals;
+
+#if !defined(WIN32)
+struct dlcloser {
+  void operator() (void* handle) const noexcept {
+    if (handle)
+      dlclose(handle);
+  }
+};
+auto dlopen(const std::filesystem::path& paht) {
+  return std::unique_ptr<void, dlcloser>{ dlopen(get_plugins_env().plugin_path.c_str(), RTLD_LAZY) };
+}
+#else
+struct dlcloser {
+    void operator() (HMODULE handle) const noexcept {
+        if (handle)
+            FreeLibrary(handle);
+    }
+};
+auto dlopen(const std::filesystem::path& paht) {
+    return std::unique_ptr<std::remove_pointer_t<HMODULE>, dlcloser>{ LoadLibrary(get_plugins_env().plugin_path.c_str()) };
+}
+#endif
 
 class average : public plugin<average, stat_func_iface> {
 public:
@@ -66,15 +90,8 @@ SCENARIO("integration tests") {
       }
     }
 
-#if !defined(WIN32)
     WHEN("module with plugin loaded") {
-      struct dlcloser {
-        void operator() (void* handle) const noexcept {
-          if (handle)
-            dlclose(handle);
-        }
-      };
-      std::unique_ptr<void, dlcloser> handle{dlopen(get_plugins_env().plugin_path.c_str(), RTLD_LAZY)};
+      auto plugin = dlopen(get_plugins_env().plugin_path);
       auto deviation_factory = registry.find_factory<stat_func_iface>("standard_deviation");
       THEN("factory fror it's plugins are non null") {
           CHECK(deviation_factory != nullptr);
@@ -85,6 +102,5 @@ SCENARIO("integration tests") {
           CHECK(deviation->calc(sample) == 1.0126213678_a);
       }
     }
-#endif
   }
 }
