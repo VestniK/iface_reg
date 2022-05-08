@@ -23,7 +23,7 @@ set_property(
 )
 if (WIN32)
   target_sources(iface_reg_integration.test PRIVATE win/dlopen.cpp)
-  set_property(SOURCES win/dlopen.cpp PROPERTY COMPILE_DEFINITIONS UNICODE)
+  set_property(SOURCE win/dlopen.cpp PROPERTY COMPILE_DEFINITIONS UNICODE)
 else()
   target_sources(iface_reg_integration.test PRIVATE unix/dlopen.cpp)
 endif()
