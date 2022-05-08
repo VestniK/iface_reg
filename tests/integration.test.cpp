@@ -1,41 +1,14 @@
+#include <filesystem>
 #include <numeric>
 #include <random>
-#include <filesystem>
 
 #include <catch2/catch.hpp>
 
 #include <tests/common_env.hpp>
+#include <tests/dlopen.hpp>
 #include <tests/main.test.hpp>
 
-#if !defined(WIN32)
-#include <dlfcn.h>
-#else
-#include <windows.h>
-#endif
-
 using namespace Catch::literals;
-
-#if !defined(WIN32)
-struct dlcloser {
-  void operator() (void* handle) const noexcept {
-    if (handle)
-      dlclose(handle);
-  }
-};
-auto dlopen(const std::filesystem::path& paht) {
-  return std::unique_ptr<void, dlcloser>{ dlopen(get_plugins_env().plugin_path.c_str(), RTLD_LAZY) };
-}
-#else
-struct dlcloser {
-    void operator() (HMODULE handle) const noexcept {
-        if (handle)
-            FreeLibrary(handle);
-    }
-};
-auto dlopen(const std::filesystem::path& paht) {
-    return std::unique_ptr<std::remove_pointer_t<HMODULE>, dlcloser>{ LoadLibrary(get_plugins_env().plugin_path.c_str()) };
-}
-#endif
 
 class average : public plugin<average, stat_func_iface> {
 public:
@@ -84,22 +57,22 @@ SCENARIO("integration tests") {
 #endif
 
     WHEN("plugin from not yet loaded module searched") {
-      auto deviation_factory = registry.find_factory<stat_func_iface>("standard_deviation");
-      THEN("nothing is found") {
-          CHECK(deviation_factory == nullptr);
-      }
+      auto deviation_factory =
+          registry.find_factory<stat_func_iface>("standard_deviation");
+      THEN("nothing is found") { CHECK(deviation_factory == nullptr); }
     }
 
     WHEN("module with plugin loaded") {
       auto plugin = dlopen(get_plugins_env().plugin_path);
-      auto deviation_factory = registry.find_factory<stat_func_iface>("standard_deviation");
+      auto deviation_factory =
+          registry.find_factory<stat_func_iface>("standard_deviation");
       THEN("factory fror it's plugins are non null") {
-          CHECK(deviation_factory != nullptr);
+        CHECK(deviation_factory != nullptr);
       }
       THEN("plugin found calculates standard deviation") {
-          auto deviation = deviation_factory();
-          REQUIRE(deviation_factory != nullptr);
-          CHECK(deviation->calc(sample) == 1.0126213678_a);
+        auto deviation = deviation_factory();
+        REQUIRE(deviation_factory != nullptr);
+        CHECK(deviation->calc(sample) == 1.0126213678_a);
       }
     }
   }

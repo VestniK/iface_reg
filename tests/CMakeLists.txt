@@ -21,4 +21,9 @@ set_property(
   TARGET iface_reg_integration.test
   PROPERTY ENABLE_EXPORTS On
 )
-target_compile_definitions(iface_reg_integration.test PRIVATE UNICODE)
+if (WIN32)
+  target_sources(iface_reg_integration.test PRIVATE win/dlopen.cpp)
+  set_property(SOURCES win/dlopen.cpp PROPERTY COMPILE_DEFINITIONS UNICODE)
+else()
+  target_sources(iface_reg_integration.test PRIVATE unix/dlopen.cpp)
+endif()
