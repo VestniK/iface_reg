@@ -1,9 +1,15 @@
 #include <numeric>
 #include <random>
+#include <filesystem>
+
+#if !defined(WIN32)
+#include <dlfcn.h>
+#endif
 
 #include <catch2/catch.hpp>
 
 #include <tests/common_env.hpp>
+#include <tests/main.test.hpp>
 
 using namespace Catch::literals;
 
@@ -49,6 +55,34 @@ SCENARIO("integration tests") {
         auto median = median_factory();
         REQUIRE(median_factory != nullptr);
         CHECK(median->calc(sample) == 0.0217291609_a);
+      }
+    }
+#endif
+
+    WHEN("plugin from not yet loaded module searched") {
+      auto deviation_factory = registry.find_factory<stat_func_iface>("standard_deviation");
+      THEN("nothing is found") {
+          CHECK(deviation_factory == nullptr);
+      }
+    }
+
+#if !defined(WIN32)
+    WHEN("module with plugin loaded") {
+      struct dlcloser {
+        void operator() (void* handle) const noexcept {
+          if (handle)
+            dlclose(handle);
+        }
+      };
+      std::unique_ptr<void, dlcloser> handle{dlopen(get_plugins_env().plugin_path.c_str(), RTLD_LAZY)};
+      auto deviation_factory = registry.find_factory<stat_func_iface>("standard_deviation");
+      THEN("factory fror it's plugins are non null") {
+          CHECK(deviation_factory != nullptr);
+      }
+      THEN("plugin found calculates standard deviation") {
+          auto deviation = deviation_factory();
+          REQUIRE(deviation_factory != nullptr);
+          CHECK(deviation->calc(sample) == 1.0126213678_a);
       }
     }
 #endif

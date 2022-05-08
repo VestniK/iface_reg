@@ -6,16 +6,16 @@
 #include <tests/common_env.hpp>
 
 #if defined(_WIN32)
-#if defined(integration_test_dynlib_EXPORTS)
-#define TEST_DYNLIB_PUBLIC __declspec(dllexport)
+#if defined(dynlib_EXPORTS)
+#define DYNLIB_PUBLIC __declspec(dllexport)
 #else
-#define TEST_DYNLIB_PUBLIC __declspec(dllimport)
+#define DYNLIB_PUBLIC __declspec(dllimport)
 #endif
 #elif __has_cpp_attribute(gnu::visibility)
-#define TEST_DYNLIB_PUBLIC [[gnu::visibility("default")]]
+#define DYNLIB_PUBLIC [[gnu::visibility("default")]]
 #endif
 
-class TEST_DYNLIB_PUBLIC median : public plugin<median, stat_func_iface> {
+class DYNLIB_PUBLIC median : public plugin<median, stat_func_iface> {
 public:
   static constexpr std::string_view name = "median";
 

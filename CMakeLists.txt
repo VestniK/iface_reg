@@ -13,8 +13,8 @@ include(cmake/canonical_project.cmake)
 
 conan_cmake_configure(
   REQUIRES
-    catch2/2.13.7
-    fmt/7.1.3
+    catch2/2.13.9
+    fmt/8.1.1
   GENERATORS cmake_find_package
 )
 conan_cmake_autodetect(settings)

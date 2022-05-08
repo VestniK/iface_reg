@@ -81,7 +81,7 @@ macro(cpp_unit)
         add_executable(${UNIT_PRJ_NAME}.test)
         target_sources(${UNIT_PRJ_NAME}.test PRIVATE ${PRJ_TEST_SRC})
         target_link_libraries(${UNIT_PRJ_NAME}.test PRIVATE ${LIB_PRJ_TGT} ${UNIT_PRJ_TEST_LIBS})
-        add_test(NAME ${UNIT_PRJ_NAME}-test COMMAND ${UNIT_PRJ_NAME}.test ${UNIT__PRJ_TEST_ARGS})
+        add_test(NAME ${UNIT_PRJ_NAME}-test COMMAND ${UNIT_PRJ_NAME}.test ${UNIT_PRJ_TEST_ARGS})
     endif()
 
     if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp)
