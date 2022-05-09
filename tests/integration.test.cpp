@@ -10,15 +10,6 @@
 
 using namespace Catch::literals;
 
-class average : public plugin<average, stat_func_iface> {
-public:
-  static constexpr std::string_view name = "average";
-
-  double calc(std::span<const double> sample) override {
-    return std::accumulate(sample.begin(), sample.end(), 0.) / sample.size();
-  }
-};
-
 SCENARIO("integration tests") {
   GIVEN("some random sample") {
     const std::vector<double> sample = [&] {
