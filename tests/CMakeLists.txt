@@ -4,6 +4,7 @@ if (NOT WIN32)
 endif()
 
 add_subdirectory(dynplugin)
+add_subdirectory(dyn_registry)
 
 find_package(Catch2 REQUIRED)
 
@@ -13,6 +14,7 @@ cpp_unit(
   TEST_LIBS
     Catch2::Catch2
     iface_reg
+    dyn_registry
     ${DYNLIB_TGT}
     ${CMAKE_DL_LIBS}
   TEST_ARGS --rng-seed time -p $<TARGET_FILE:dynplugin>
