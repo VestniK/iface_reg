@@ -4,13 +4,16 @@
 
 #include <catch2/catch.hpp>
 
+#include <tests/ci_string.hpp>
 #include <tests/common_env.hpp>
 #include <tests/dlopen.hpp>
+#include <tests/dyn_registry/env.hpp>
 #include <tests/main.test.hpp>
 
 using namespace Catch::literals;
+using namespace ci::literals;
 
-SCENARIO("integration tests") {
+SCENARIO("app registry integration tests") {
   GIVEN("some random sample") {
     const std::vector<double> sample = [&] {
       std::mt19937 gen;
@@ -28,8 +31,8 @@ SCENARIO("integration tests") {
 
       THEN("its factory is non null") { CHECK(average_factory != nullptr); }
       THEN("plugin found calculates sample average") {
-        auto average = average_factory();
         REQUIRE(average_factory != nullptr);
+        auto average = average_factory();
         CHECK(average->calc(sample) == 0.0185213375_a);
       }
     }
@@ -40,8 +43,8 @@ SCENARIO("integration tests") {
 
       THEN("its factory is non null") { CHECK(median_factory != nullptr); }
       THEN("plugin found calculates sample median") {
-        auto median = median_factory();
         REQUIRE(median_factory != nullptr);
+        auto median = median_factory();
         CHECK(median->calc(sample) == 0.0217291609_a);
       }
     }
@@ -61,9 +64,39 @@ SCENARIO("integration tests") {
         CHECK(deviation_factory != nullptr);
       }
       THEN("plugin found calculates standard deviation") {
-        auto deviation = deviation_factory();
         REQUIRE(deviation_factory != nullptr);
+        auto deviation = deviation_factory();
         CHECK(deviation->calc(sample) == 1.0126213678_a);
+      }
+    }
+  }
+}
+
+SCENARIO("dyn registry integration test") {
+  GIVEN("some num") {
+    const int val = 42;
+
+    WHEN("serializer from app is searched") {
+      auto app_factory =
+          dyn::registry.find_factory<dyn::num_serializer_iface>("decimal");
+
+      THEN("non-null factory returned") { CHECK(app_factory != nullptr); }
+      THEN("created plugin serializes value to decimal strig") {
+        REQUIRE(app_factory != nullptr);
+        auto decimal = app_factory();
+        CHECK(decimal->serialize(val) == "42");
+      }
+    }
+
+    WHEN("serializer from registry dyn lib is searched") {
+      auto dynreg_factory =
+          dyn::registry.find_factory<dyn::num_serializer_iface>("hex");
+
+      THEN("non-null factory returned") { CHECK(dynreg_factory != nullptr); }
+      THEN("created plugin serializes value to hex strig") {
+        REQUIRE(dynreg_factory != nullptr);
+        auto hex = dynreg_factory();
+        CHECK(hex->serialize(val) == "2A"_ci);
       }
     }
   }
