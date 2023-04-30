@@ -1,8 +1,10 @@
+#include <algorithm>
 #include <filesystem>
 #include <numeric>
 #include <random>
 
-#include <catch2/catch.hpp>
+#include <catch2/catch_approx.hpp>
+#include <catch2/catch_test_macros.hpp>
 
 #include <tests/ci_string.hpp>
 #include <tests/common_env.hpp>
@@ -60,7 +62,7 @@ SCENARIO("app registry integration tests") {
       auto plugin = dlopen(get_plugins_env().plugin_path);
       auto deviation_factory =
           registry.find_factory<stat_func_iface>("standard_deviation");
-      THEN("factory fror it's plugins are non null") {
+      THEN("factory for it's plugins are non null") {
         CHECK(deviation_factory != nullptr);
       }
       THEN("plugin found calculates standard deviation") {

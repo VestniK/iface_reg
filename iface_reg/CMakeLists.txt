@@ -6,7 +6,7 @@ cpp_unit(
   STD cxx_std_20
   TEST_LIBS
     Catch2::Catch2
+    Catch2::Catch2WithMain
     fmt::fmt
-    catch2_main
   TEST_ARGS --rng-seed time
 )
