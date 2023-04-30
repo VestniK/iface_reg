@@ -21,7 +21,7 @@ jobs:
       uses: turtlebrowser/get-conan@v1.0
 
     - name: Configure CMake
-      run: cmake -G 'Visual Studio 16 2019' -B ${{github.workspace}}/build -DCMAKE_PROJECT_TOP_LEVEL_INCLUDES=cmake/conan_provider.cmake -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+      run: cmake -G 'Visual Studio 16 2019' -B ${{github.workspace}}/build "-DCMAKE_PROJECT_TOP_LEVEL_INCLUDES=cmake/conan_provider.cmake" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
 
     - name: Build
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
