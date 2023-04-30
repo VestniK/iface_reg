@@ -16,8 +16,10 @@ public:
 
   std::optional<int> deserialize(std::string_view str) override {
     int val;
-    if (std::from_chars(str.data(), str.data() + str.size(), val, 16).ptr ==
-        str.end()) {
+    const char *first = str.data();
+    const char *last = str.data() + str.size();
+
+    if (std::from_chars(first, last, val, 16).ptr == last) {
       return val;
     }
     return std::nullopt;
