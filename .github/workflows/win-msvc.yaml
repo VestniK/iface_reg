@@ -28,7 +28,7 @@ jobs:
         key: ${{ runner.os }}-MSVS2019-conan-${{ hashFiles('conanfile.txt') }}
 
     - name: Configure CMake
-      run: cmake -G 'Visual Studio 16 2019' -B ${{github.workspace}}/build "-DCMAKE_PROJECT_TOP_LEVEL_INCLUDES=cmake/conan_provider.cmake" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+      run: cmake -G 'Visual Studio 16 2019' -B ${{github.workspace}}/build -DCMAKE_CXX_STANDARD=20 "-DCMAKE_PROJECT_TOP_LEVEL_INCLUDES=cmake/conan_provider.cmake" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
 
     - name: Save conan deps cache
       uses: actions/cache/save@v3
