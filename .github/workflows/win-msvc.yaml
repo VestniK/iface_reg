@@ -1,4 +1,4 @@
-    name: WinMsvcCMake
+name: WinMsvcCMake
 
 on:
   push:
