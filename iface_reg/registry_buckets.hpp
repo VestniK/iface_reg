@@ -1,26 +1,10 @@
 #pragma once
 
 #include <array>
-#include <compare>
-#include <string_view>
+
+#include <iface_reg/registry_iterator.hpp>
 
 namespace iface_reg::detail {
-
-struct registry_key {
-  constexpr std::strong_ordering
-  operator<=>(const registry_key &) const noexcept = default;
-
-  std::string_view plugin_name;
-  size_t iface_idx;
-};
-
-struct registry_node {
-  using typerased_factory = void();
-
-  registry_key key;
-  typerased_factory *factory_func;
-  registry_node *next;
-};
 
 template <size_t BucketsCount> class registry_buckets {
 public:
@@ -52,6 +36,14 @@ public:
 
     return node;
   }
+
+  registry_iterator begin() const noexcept {
+    return registry_iterator{buckets_};
+  }
+  registry_sentinel end() const noexcept { return {}; }
+
+  // Complexity O(BucketsCount)
+  bool empty() const noexcept { return begin() == end(); }
 
 private:
   std::array<registry_node *, BucketsCount> buckets_{};

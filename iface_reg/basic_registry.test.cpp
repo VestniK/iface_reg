@@ -5,25 +5,11 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-struct int_iface {
-  using factory_signature = std::unique_ptr<int_iface>();
-
-  virtual int get_num() = 0;
-  virtual ~int_iface() noexcept = default;
-};
-
-struct double_iface {
-  using factory_signature = std::shared_ptr<double_iface>();
-
-  virtual double get_num() = 0;
-};
+#include <iface_reg/test_ifaces.test.hpp>
 
 SCENARIO("registry::link") {
   GIVEN("Empty registry") {
     irg::registry<int_iface, double_iface> reg;
-
-    auto bad_int_factory = []() { return std::unique_ptr<int_iface>{}; };
-    auto bad_double_factory = []() { return std::shared_ptr<double_iface>{}; };
 
     THEN("link any bucket succeeds") {
       auto bad = reg.make_node<int_iface>("bad_bucket", bad_int_factory);
@@ -60,11 +46,6 @@ SCENARIO("registry::unlink") {
     THEN("any unlink fails") { REQUIRE(reg.unlink<int_iface>("qwe") == false); }
 
     WHEN("Some factories added") {
-      auto bad_int_factory = []() { return std::unique_ptr<int_iface>{}; };
-      auto bad_double_factory = []() {
-        return std::shared_ptr<double_iface>{};
-      };
-
       auto int_node = reg.make_node<int_iface>("bad int", bad_int_factory);
       auto double_node =
           reg.make_node<double_iface>("bad double", bad_double_factory);
@@ -96,11 +77,6 @@ SCENARIO("registry::find_factory") {
     }
 
     WHEN("Some factories are added") {
-      auto bad_int_factory = []() { return std::unique_ptr<int_iface>{}; };
-      auto bad_double_factory = []() {
-        return std::shared_ptr<double_iface>{};
-      };
-
       auto int_node = reg.make_node<int_iface>("bad int", bad_int_factory);
       auto double_node =
           reg.make_node<double_iface>("bad double", bad_double_factory);

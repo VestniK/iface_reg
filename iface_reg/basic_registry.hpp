@@ -1,9 +1,11 @@
 #pragma once
 
+#include <ranges>
 #include <string_view>
 
 #include <iface_reg/concepts.hpp>
 #include <iface_reg/registry_buckets.hpp>
+#include <iface_reg/registry_iterator.hpp>
 #include <iface_reg/type_list.hpp>
 
 namespace iface_reg {
@@ -19,7 +21,7 @@ public:
 
 public:
   template <plugin_interface I>
-  requires std::disjunction_v<std::is_same<I, Ifaces>...>
+    requires std::disjunction_v<std::is_same<I, Ifaces>...>
   static constexpr detail::registry_node
   make_node(std::string_view name,
             typename I::factory_signature *factory) noexcept {
@@ -33,7 +35,7 @@ public:
   }
 
   template <plugin_interface I>
-  requires std::disjunction_v<std::is_same<I, Ifaces>...>
+    requires std::disjunction_v<std::is_same<I, Ifaces>...>
   typename I::factory_signature *
   find_factory(std::string_view name) const noexcept {
     constexpr size_t iface_idx = detail::find<I, Ifaces...>();
@@ -46,13 +48,29 @@ public:
                 : nullptr;
   }
 
+  template <plugin_interface I>
+    requires std::disjunction_v<std::is_same<I, Ifaces>...>
+  auto items() const noexcept {
+    constexpr size_t iface_idx = detail::find<I, Ifaces...>();
+    static_assert(iface_idx < sizeof...(Ifaces));
+    return static_cast<const detail::registry_buckets<BucketsCount> &>(*this) |
+           std::views::filter([](const detail::registry_node &node) {
+             return node.key.iface_idx == iface_idx;
+           }) |
+           std::views::transform([](const detail::registry_node &node) {
+             return std::pair{node.key.plugin_name,
+                              reinterpret_cast<typename I::factory_signature *>(
+                                  node.factory_func)};
+           });
+  }
+
   bool link(detail::registry_node &node) noexcept {
     return base_t::link_at(hash(node.key), node);
   }
 
   template <plugin_interface I>
-  requires std::disjunction_v<std::is_same<I, Ifaces>...>
-  bool unlink(std::string_view name) noexcept {
+    requires std::disjunction_v<std::is_same<I, Ifaces>...> bool
+  unlink(std::string_view name) noexcept {
     constexpr size_t idx = detail::find<I, Ifaces...>();
     static_assert(idx < sizeof...(Ifaces));
     detail::registry_key key{.plugin_name = name, .iface_idx = idx};
