@@ -1,6 +1,6 @@
 function(detect_os OS)
     # it could be cross compilation
-    message(STATUS "Conan-cmake: cmake_system_name=${CMAKE_SYSTEM_NAME}")
+    message(STATUS "CMake-Conan: cmake_system_name=${CMAKE_SYSTEM_NAME}")
     if(CMAKE_SYSTEM_NAME AND NOT CMAKE_SYSTEM_NAME STREQUAL "Generic")
         if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
             set(${OS} Macos PARENT_SCOPE)
@@ -33,8 +33,8 @@ function(detect_compiler COMPILER COMPILER_VERSION)
         set(_COMPILER_VERSION ${CMAKE_C_COMPILER_VERSION})
     endif()
 
-    message(STATUS "Conan-cmake: CMake compiler=${_COMPILER}") 
-    message(STATUS "Conan-cmake: CMake cmpiler version=${_COMPILER_VERSION}")
+    message(STATUS "CMake-Conan: CMake compiler=${_COMPILER}")
+    message(STATUS "CMake-Conan: CMake cmpiler version=${_COMPILER_VERSION}")
 
     if(_COMPILER MATCHES MSVC)
         set(_COMPILER "msvc")
@@ -53,8 +53,8 @@ function(detect_compiler COMPILER COMPILER_VERSION)
         list(GET VERSION_LIST 0 _COMPILER_VERSION)
     endif()
 
-    message(STATUS "Conan-cmake: [settings] compiler=${_COMPILER}") 
-    message(STATUS "Conan-cmake: [settings] compiler.version=${_COMPILER_VERSION}")
+    message(STATUS "CMake-Conan: [settings] compiler=${_COMPILER}")
+    message(STATUS "CMake-Conan: [settings] compiler.version=${_COMPILER_VERSION}")
 
     set(${COMPILER} ${_COMPILER} PARENT_SCOPE)
     set(${COMPILER_VERSION} ${_COMPILER_VERSION} PARENT_SCOPE)
@@ -103,15 +103,15 @@ function(detect_host_profile output_file)
     string(APPEND PROFILE "[conf]\n")
     string(APPEND PROFILE "tools.cmake.cmaketoolchain:generator=${CMAKE_GENERATOR}\n")
 
-    message(STATUS "Conan-cmake: Creating profile ${_FN}")
+    message(STATUS "CMake-Conan: Creating profile ${_FN}")
     file(WRITE ${_FN} ${PROFILE})
-    message(STATUS "Conan-cmake: Profile: \n${PROFILE}")
+    message(STATUS "CMake-Conan: Profile: \n${PROFILE}")
 endfunction()
 
 
 function(conan_profile_detect_default)
-    message(STATUS "Conan-cmake: Checking if a default profile exists")
-    execute_process(COMMAND conan profile path default
+    message(STATUS "CMake-Conan: Checking if a default profile exists")
+    execute_process(COMMAND ${CONAN_COMMAND} profile path default
                     RESULT_VARIABLE return_code
                     OUTPUT_VARIABLE conan_stdout
                     ERROR_VARIABLE conan_stderr
@@ -119,8 +119,8 @@ function(conan_profile_detect_default)
                     ECHO_OUTPUT_VARIABLE
                     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
     if(NOT ${return_code} EQUAL "0")
-        message(STATUS "Conan-cmake: The default profile doesn't exist, detecting it.")
-        execute_process(COMMAND conan profile detect
+        message(STATUS "CMake-Conan: The default profile doesn't exist, detecting it.")
+        execute_process(COMMAND ${CONAN_COMMAND} profile detect
             RESULT_VARIABLE return_code
             OUTPUT_VARIABLE conan_stdout
             ERROR_VARIABLE conan_stderr
@@ -136,8 +136,8 @@ function(conan_install)
     set(CONAN_OUTPUT_FOLDER ${CMAKE_BINARY_DIR}/conan)
     # Invoke "conan install" with the provided arguments
     set(CONAN_ARGS ${CONAN_ARGS} -of=${CONAN_OUTPUT_FOLDER})
-    message(STATUS "CMake-conan: conan install ${CMAKE_SOURCE_DIR} ${CONAN_ARGS} ${ARGN}")
-    execute_process(COMMAND conan install ${CMAKE_SOURCE_DIR} ${CONAN_ARGS} ${ARGN} --format=json
+    message(STATUS "CMake-Conan: conan install ${CMAKE_SOURCE_DIR} ${CONAN_ARGS} ${ARGN}")
+    execute_process(COMMAND ${CONAN_COMMAND} install ${CMAKE_SOURCE_DIR} ${CONAN_ARGS} ${ARGN} --format=json
                     RESULT_VARIABLE return_code
                     OUTPUT_VARIABLE conan_stdout
                     ERROR_VARIABLE conan_stderr
@@ -147,39 +147,45 @@ function(conan_install)
         message(FATAL_ERROR "Conan install failed='${return_code}'")
     else()
         # the files are generated in a folder that depends on the layout used, if
-        # one if specified, but we don't know a priori where this is. 
+        # one is specified, but we don't know a priori where this is.
         # TODO: this can be made more robust if Conan can provide this in the json output
         string(JSON CONAN_GENERATORS_FOLDER GET ${conan_stdout} graph nodes 0 generators_folder)
         # message("conan stdout: ${conan_stdout}")
-        message(STATUS "CMake-conan: CONAN_GENERATORS_FOLDER=${CONAN_GENERATORS_FOLDER}")
-        set(CONAN_GENERATORS_FOLDER "${CONAN_GENERATORS_FOLDER}" PARENT_SCOPE)
-        set(CONAN_INSTALL_SUCCESS TRUE CACHE BOOL "Conan install has been invoked and was successful")
+        message(STATUS "CMake-Conan: CONAN_GENERATORS_FOLDER=${CONAN_GENERATORS_FOLDER}")
+        set_property(GLOBAL PROPERTY CONAN_GENERATORS_FOLDER "${CONAN_GENERATORS_FOLDER}")
+        # reconfigure on conanfile changess
+        string(JSON CONANFILE GET ${conan_stdout} graph nodes 0 label)
+        message(STATUS "CMake-Conan: CONANFILE=${CMAKE_SOURCE_DIR}/${CONANFILE}")
+        set_property(DIRECTORY ${CMAKE_SOURCE_DIR} APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/${CONANFILE}")
+        # success
+        set_property(GLOBAL PROPERTY CONAN_INSTALL_SUCCESS TRUE)
     endif()
 endfunction()
 
 
 macro(conan_provide_dependency package_name)
+    get_property(CONAN_INSTALL_SUCCESS GLOBAL PROPERTY CONAN_INSTALL_SUCCESS)
     if(NOT CONAN_INSTALL_SUCCESS)
-        message(STATUS "CMake-conan: first find_package() found. Installing dependencies with Conan")
+        find_program(CONAN_COMMAND "conan" REQUIRED)
+        message(STATUS "CMake-Conan: first find_package() found. Installing dependencies with Conan")
         conan_profile_detect_default()
         detect_host_profile(${CMAKE_BINARY_DIR}/conan_host_profile)
         if(NOT CMAKE_CONFIGURATION_TYPES)
-            message(STATUS "CMake-conan: Installing single configuration ${CMAKE_BUILD_TYPE}")
+            message(STATUS "CMake-Conan: Installing single configuration ${CMAKE_BUILD_TYPE}")
             conan_install(-pr ${CMAKE_BINARY_DIR}/conan_host_profile --build=missing -g CMakeDeps)
         else()
-            message(STATUS "CMake-conan: Installing both Debug and Release")
+            message(STATUS "CMake-Conan: Installing both Debug and Release")
             conan_install(-pr ${CMAKE_BINARY_DIR}/conan_host_profile -s build_type=Release --build=missing -g CMakeDeps)
             conan_install(-pr ${CMAKE_BINARY_DIR}/conan_host_profile -s build_type=Debug --build=missing -g CMakeDeps)
         endif()
+        get_property(CONAN_INSTALL_SUCCESS GLOBAL PROPERTY CONAN_INSTALL_SUCCESS)
         if (CONAN_INSTALL_SUCCESS)
-            set(CONAN_GENERATORS_FOLDER "${CONAN_GENERATORS_FOLDER}" CACHE PATH "Conan generators folder")
+            get_property(CONAN_GENERATORS_FOLDER GLOBAL PROPERTY CONAN_GENERATORS_FOLDER)
+            list(PREPEND CMAKE_PREFIX_PATH "${CONAN_GENERATORS_FOLDER}")
         endif()
     else()
-        message(STATUS "CMake-conan: find_package(${ARGV1}) found, 'conan install' aready ran")
+        message(STATUS "CMake-Conan: find_package(${ARGV1}) found, 'conan install' aready ran")
     endif()
 
-    if (CONAN_GENERATORS_FOLDER)
-        list(PREPEND CMAKE_PREFIX_PATH "${CONAN_GENERATORS_FOLDER}")
-    endif()
     find_package(${ARGN} BYPASS_PROVIDER)
 endmacro()
